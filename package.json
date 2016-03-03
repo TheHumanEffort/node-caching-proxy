@@ -1,0 +1,20 @@
+{
+  "name": "NodeRAMProxy",
+  "version": "0.0.1",
+  "description": "Simple in-RAM caching proxy for Node",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concat-stream": "^1.5.1",
+    "express": "^4.13.3",
+    "http-proxy": "^1.12.0",
+    "lodash": "^3.10.1",
+    "node-cache": "^3.0.0",
+    "request": "^2.65.0",
+    "stream-replace": "^1.0.0"
+  }
+}

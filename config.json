@@ -1,0 +1,10 @@
+{
+  "cache": {
+    "lifetime": 120
+  },
+  "relay_source": {
+    "base_url_plain": "http://mesa.monu.net:5923"
+  },
+  "base_url_plain": "http://node-ssh.mesaradio.gteal.svc.tutum.io:8008",
+  "listen_port": 80
+}
