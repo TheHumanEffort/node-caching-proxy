@@ -30,7 +30,7 @@ var nocache_re = new RegExp(noCache, 'i');
 var tr_url_re  = new RegExp(urlTrans, 'i');
 
 srv = http.createServer(function(req, res) {
-  console.log('REQ: ', req.url);
+//  console.log('REQ: ', req.url);
 
   /*  if (req.url.indexOf('m3u8') != -1) {
       // do not cache the radio.m3u8 file, which changes often
@@ -81,7 +81,7 @@ srv = http.createServer(function(req, res) {
               cache.set(req.url, { headers: proxy_res.headers, body: data }, cacheFreq,
                     function(err, success) {
                       if (!err && success) {
-                        console.log('Cached ', req.url);
+                        // console.log('Cached ', req.url);
                       } else {
                         console.log('Error caching ' + req.url, err);
                       }
