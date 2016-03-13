@@ -9,6 +9,10 @@ var concat = require('concat-stream');
 // convenience vars for config values
 var sourceUrl = process.env.PROXY_BASE; // config.relay_source.base_url_plain;
 var cacheFreq = process.env.LIFETIME_SECS; // config.cache.lifetime;
+var noCache   = process.env.DO_NOT_CACHE;
+// pattern to match URL requests that should have their response text
+// subject to URL string substitution
+var urlTrans  = process.env.URL_TRANSLATE;
 var port = process.env.PORT || 8080;
 
 var proxy = httpProxy.createProxy({ target: sourceUrl });
@@ -21,6 +25,8 @@ setInterval(function() {
 // regex used to rewrite the djVLC radio.m3u8 URLs from original base_url_plain
 // to proxy base_url_plain, facilitating ts file downloads through proxy
 var replace_re = new RegExp(sourceUrl, 'ig');
+var nocache_re = new RegExp(noCache, 'i');
+var tr_url_re  = new RegExp(urlTrans, 'i');
 
 srv = http.createServer(function(req, res) {
   console.log('REQ: ', req.url);
@@ -58,15 +64,24 @@ srv = http.createServer(function(req, res) {
             res.setHeader(key, value);
           });
 
-          proxy_res.pipe(concat(function(data) {
-            cache.set(req.url, { headers: proxy_res.headers, body: data }, cacheFreq,
-                  function(err, success) {
-                    if (!err && success) {
-                      console.log('Cached ', req.url);
-                    } else {
-                      console.log('Error caching ' + req.url, err);
-                    }
-                  });
+          // url substitution
+          var proxy_res_tr = proxy_res;
+          if (req.url.match(tr_url_re)) {
+            proxy_res_tr = proxy_res.pipe(replace(replace_re, sourceUrl));
+          }
+
+          proxy_res_tr.pipe(concat(function(data) {
+            // cache proxy result
+            if (!req.url.match(nocache_re)) {
+              cache.set(req.url, { headers: proxy_res.headers, body: data }, cacheFreq,
+                    function(err, success) {
+                      if (!err && success) {
+                        console.log('Cached ', req.url);
+                      } else {
+                        console.log('Error caching ' + req.url, err);
+                      }
+                    });
+            }
 
             try {
               res.write(data);
