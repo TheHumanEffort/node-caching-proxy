@@ -8,6 +8,7 @@ var concat = require('concat-stream');
 
 // convenience vars for config values
 var sourceUrl = process.env.PROXY_BASE; // config.relay_source.base_url_plain;
+var targetUrl = process.env.TARGET_BASE; // config.base_url_plain;
 var cacheFreq = process.env.LIFETIME_SECS; // config.cache.lifetime;
 var noCache   = process.env.DO_NOT_CACHE;
 // pattern to match URL requests that should have their response text
@@ -22,7 +23,7 @@ setInterval(function() {
   console.log('CACHE STATS: ', cache.getStats());
 }, 10000);
 
-// regex used to rewrite the djVLC radio.m3u8 URLs from original base_url_plain
+// regex used to rewrite URLs in proxied content from original base_url_plain
 // to proxy base_url_plain, facilitating ts file downloads through proxy
 var replace_re = new RegExp(sourceUrl, 'ig');
 var nocache_re = new RegExp(noCache, 'i');
@@ -67,7 +68,7 @@ srv = http.createServer(function(req, res) {
           // url substitution
           var proxy_res_tr = proxy_res;
           if (req.url.match(tr_url_re)) {
-            proxy_res_tr = proxy_res.pipe(replace(replace_re, sourceUrl));
+            proxy_res_tr = proxy_res.pipe(replace(replace_re, targetUrl));
           }
 
           proxy_res_tr.pipe(concat(function(data) {
