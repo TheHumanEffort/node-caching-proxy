@@ -21,7 +21,7 @@ var cache = new NodeCache({ checkperiod: cacheFreq, useClones: false });
 
 setInterval(function() {
   console.log('CACHE STATS: ', cache.getStats());
-}, 10000);
+}, 60000);
 
 // regex used to rewrite URLs in proxied content from original base_url_plain
 // to proxy base_url_plain, facilitating ts file downloads through proxy
@@ -59,15 +59,19 @@ srv = http.createServer(function(req, res) {
       }
 
       if (value == undefined) {
-        console.log('Getting ' + (sourceUrl + req.url));
+
         http.get(sourceUrl  + req.url, function(proxy_res) {
+          var proxy_res_tr = proxy_res;
+          var url_sub = req.url.match(tr_url_re)
+
           _.each(proxy_res.headers, function(value, key) {
-            res.setHeader(key, value);
+	      if(!(url_sub && key.match(/content-length/i))) {
+		  res.setHeader(key, value);
+	      }
           });
 
+	  if(url_sub) {
           // url substitution
-          var proxy_res_tr = proxy_res;
-          if (req.url.match(tr_url_re)) {
             proxy_res_tr = proxy_res.pipe(replace(replace_re, targetUrl));
           }
 
